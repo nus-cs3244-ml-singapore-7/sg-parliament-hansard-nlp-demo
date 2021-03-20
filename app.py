@@ -21,7 +21,7 @@ Ms Rahayu Mahzam: I thank the Member for the clarification. Typically, the appli
 st.title("Parliament NLP")
 model = st.sidebar.selectbox(
     'Model',
-    ("en_core_web_md", "en_core_web_trf"))
+    ("en_core_web_sm", "en_core_web_md", "en_core_web_trf"))
 
 
 text_box = st.text_area("Enter some text for NER", default_text) 
