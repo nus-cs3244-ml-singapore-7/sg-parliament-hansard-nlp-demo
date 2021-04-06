@@ -79,7 +79,7 @@ if st.checkbox('Show NER Demo'):
 
 @st.cache
 def get_data():
-    df = pd.read_csv("./Combined Data.csv")
+    df = pd.read_csv("./Combined Data -14th-xlm-roberta-base-sst-2-handeset.csv")
     return df
 
 
