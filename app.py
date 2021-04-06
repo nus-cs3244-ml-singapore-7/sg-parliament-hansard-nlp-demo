@@ -1,5 +1,5 @@
 from spacy import displacy
-from transformers import *
+# from transformers import *
 import spacy_streamlit
 import streamlit as st
 import spacy
