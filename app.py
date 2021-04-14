@@ -97,7 +97,6 @@ def query_df(speaker, speech):
 
 
 # Load Data
-st. set_page_config(layout="wide")
 st.title("Singapore Parliament Hansard NLP")
 st.write("""
 The Singapore Parliament Hansard contains verbatim transcripts of the speeches made by politicians in official parliament sessions.
