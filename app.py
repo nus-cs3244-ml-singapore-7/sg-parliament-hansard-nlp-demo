@@ -184,28 +184,28 @@ fig = px.scatter(session_pivot, x="sentiment average", y="sentiment sentence_cou
 st.plotly_chart(fig)
 
 
-sequence = """ Mr Louis Ng Kok Kwang asked the Minister for Health whether couples who have pre-implantation genetically screened embryos stored overseas can have their embryos shipped to Singapore given current travel restrictions during the pandemic.
-The Parliamentary Secretary to the Minister for Health (Ms Rahayu Mahzam) (for the Minister for Health): Happy International Women's Day to all! During the pandemic, MOH received appeals from some couples to import their pre-implantation genetically screened embryos stored overseas.
-"""
+# sequence = """ Mr Louis Ng Kok Kwang asked the Minister for Health whether couples who have pre-implantation genetically screened embryos stored overseas can have their embryos shipped to Singapore given current travel restrictions during the pandemic.
+# The Parliamentary Secretary to the Minister for Health (Ms Rahayu Mahzam) (for the Minister for Health): Happy International Women's Day to all! During the pandemic, MOH received appeals from some couples to import their pre-implantation genetically screened embryos stored overseas.
+# """
 
-text_box = st.text_area("Enter some text for NER", sequence)
+# text_box = st.text_area("Enter some text for NER", sequence)
 
-HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem">{}</div>"""
+# HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem">{}</div>"""
 
-tokenizer = XLMRobertaTokenizerFast.from_pretrained('xlm-roberta-base')
-model = XLMRobertaForTokenClassification.from_pretrained(
-    'asahi417/tner-xlm-roberta-base-ontonotes5')
-ner = pipeline('ner', model=model, tokenizer=tokenizer, grouped_entities=True)
+# tokenizer = XLMRobertaTokenizerFast.from_pretrained('xlm-roberta-base')
+# model = XLMRobertaForTokenClassification.from_pretrained(
+#     'asahi417/tner-xlm-roberta-base-ontonotes5')
+# ner = pipeline('ner', model=model, tokenizer=tokenizer, grouped_entities=True)
 
-if text_box:
+# if text_box:
 
-    entity_list = ner(text_box)
-    for idx in entity_list:
-        idx['label'] = idx.pop('entity_group')
+#     entity_list = ner(text_box)
+#     for idx in entity_list:
+#         idx['label'] = idx.pop('entity_group')
 
-    doc = {"text": text_box, "ents": entity_list}
+#     doc = {"text": text_box, "ents": entity_list}
 
-    html = displacy.render(doc, style="ent", manual=True)
+#     html = displacy.render(doc, style="ent", manual=True)
 
-html = html.replace("\n\n", "\n")
-st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
+# html = html.replace("\n\n", "\n")
+# st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
