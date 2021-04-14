@@ -1,48 +1,18 @@
 from spacy import displacy
-# from transformers import *
-import spacy_streamlit
+from transformers import *
 import streamlit as st
-import spacy
-from spacy_streamlit import visualize_ner
 import pandas as pd
 import numpy as np
+import ast
 import seaborn as sn
 import matplotlib.pyplot as plt
 import plotly.express as px
 
-default_text = """
-Mr Louis Ng Kok Kwang asked the Minister for Health whether couples who have pre-implantation genetically screened embryos stored overseas can have their embryos shipped to Singapore given current travel restrictions during the pandemic.
-The Parliamentary Secretary to the Minister for Health (Ms Rahayu Mahzam) (for the Minister for Health): Happy International Women's Day to all! During the pandemic, MOH received appeals from some couples to import their pre-implantation genetically screened embryos stored overseas. 
-
-In reviewing each appeal, the Ministry considered whether processes and standards employed by overseas assisted reproduction (AR) centres are aligned to Singapore’s regulatory requirements under the Licensing Terms and Conditions for AR Services (AR LTCs). The Ministry may on an exceptional basis allow importation of the embryos, subject to conditions. These conditions include: (a) declaration by the overseas AR centre that the relevant requirements under the AR LTCs, including the handling, processing and storage of the embryos, are adhered to; (b) that no other findings besides the presence or absence of chromosomal aberrations are reported, and (c) proper documentation of the screening test results that were provided to the patient and attending physician in our local AR centres. 
-
-Local AR centres which receive the tested embryos must also continue to ensure compliance with the AR LTCs.
-
-Mr Deputy Speaker: Mr Louis Ng.
-
-Mr Louis Ng Kok Kwang (Nee Soon): Thank you, Sir. I thank the Parliamentary Secretary for the reply. Could I ask whether we can make this more of a standard application? So, rather than an appeal and on exceptional basis, could we just have an application form during this pandemic where the couples cannot travel overseas to do their IVF during this period, can we have an application form where they can fill in to apply to transfer their embryos back to Singapore?
-
-Ms Rahayu Mahzam: I thank the Member for the clarification. Typically, the applicants or those who are asking for this will usually just write in to appeal to MOH and we would provide them the answer and tell them what the necessary requirements are. But we can look into the suggestion and see how this information can be made more accessible, and perhaps, a form that is simplified for the purposes of this application. 
-
-"""
-st.title("Singapore Parliament NLP")
-if st.checkbox('Show NER Demo'):
-    model = st.sidebar.selectbox(
-        'Model',
-        (["en_core_web_sm"]))
-
-    text_box = st.text_area("Enter some text for NER", default_text) 
-    nlp = spacy.load(model)
-
-    if text_box:
-        doc = nlp(text_box)
-        visualize_ner(doc, labels=nlp.get_pipe("ner").labels)
-
 
 # sequence = """ Mr Louis Ng Kok Kwang asked the Minister for Health whether couples who have pre-implantation genetically screened embryos stored overseas can have their embryos shipped to Singapore given current travel restrictions during the pandemic.
-# The Parliamentary Secretary to the Minister for Health (Ms Rahayu Mahzam) (for the Minister for Health): Happy International Women's Day to all! During the pandemic, MOH received appeals from some couples to import their pre-implantation genetically screened embryos stored overseas. 
+# The Parliamentary Secretary to the Minister for Health (Ms Rahayu Mahzam) (for the Minister for Health): Happy International Women's Day to all! During the pandemic, MOH received appeals from some couples to import their pre-implantation genetically screened embryos stored overseas.
 
-# In reviewing each appeal, the Ministry considered whether processes and standards employed by overseas assisted reproduction (AR) centres are aligned to Singapore’s regulatory requirements under the Licensing Terms and Conditions for AR Services (AR LTCs). The Ministry may on an exceptional basis allow importation of the embryos, subject to conditions. These conditions include: (a) declaration by the overseas AR centre that the relevant requirements under the AR LTCs, including the handling, processing and storage of the embryos, are adhered to; (b) that no other findings besides the presence or absence of chromosomal aberrations are reported, and (c) proper documentation of the screening test results that were provided to the patient and attending physician in our local AR centres. 
+# In reviewing each appeal, the Ministry considered whether processes and standards employed by overseas assisted reproduction (AR) centres are aligned to Singapore’s regulatory requirements under the Licensing Terms and Conditions for AR Services (AR LTCs). The Ministry may on an exceptional basis allow importation of the embryos, subject to conditions. These conditions include: (a) declaration by the overseas AR centre that the relevant requirements under the AR LTCs, including the handling, processing and storage of the embryos, are adhered to; (b) that no other findings besides the presence or absence of chromosomal aberrations are reported, and (c) proper documentation of the screening test results that were provided to the patient and attending physician in our local AR centres.
 
 # Local AR centres which receive the tested embryos must also continue to ensure compliance with the AR LTCs.
 
@@ -54,7 +24,7 @@ if st.checkbox('Show NER Demo'):
 
 # st.title("Parliament NLP")
 
-# text_box = st.text_area("Enter some text for NER", sequence) 
+# text_box = st.text_area("Enter some text for NER", sequence)
 
 # HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem">{}</div>"""
 
@@ -73,19 +43,19 @@ if st.checkbox('Show NER Demo'):
 
 #     html = displacy.render(doc, style="ent", manual=True)
 
-#     html = html.replace("\n\n", "\n")
-#     st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
+# html = html.replace("\n\n", "\n")
+# st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
 
 
 @st.cache
 def get_data():
-    df = pd.read_csv("./Combined Data -14th-xlm-roberta-base-sst-2-handeset.csv")
+    df = pd.read_csv("./Combined Data 14th.csv")
     return df
 
 
 @st.cache
 def make_pivot_table(df, index_columns, value_columns, agg_function=np.sum):
-    """ creates a pivot table for the given daraframe
+    """ creates a pivot table for the given dataframe
     input: df = dataframe to make the pivot table out of
            index_columns = single column or set of two columns to be used as
                            columns to group by
@@ -98,10 +68,10 @@ def make_pivot_table(df, index_columns, value_columns, agg_function=np.sum):
         data=df,
         index=index_columns,
         values=value_columns,
-        aggfunc= agg_function
+        aggfunc=agg_function
     )
 
-    # reset the index 
+    # reset the index
     pivot = pivot.reset_index()
 
     # convert the value columns to float
@@ -112,7 +82,7 @@ def make_pivot_table(df, index_columns, value_columns, agg_function=np.sum):
     pivot = pivot.sort_values(by=index_columns)
     pivot.columns = pivot.columns.map(' '.join).str.strip()
 
-    # color the pivot table based on the target value 
+    # color the pivot table based on the target value
     pivot_color = pivot.style.background_gradient(cmap=cm)
     return pivot
 
@@ -121,17 +91,88 @@ def sentence_count(x):
     return int(len(x))
 
 
-st.markdown("## Sentiment Analysis")
-cm = sn.light_palette("green", as_cmap=True)
+def query_df(speaker, speech):
+    """Function to query a dataframe with the given pararmeters"""
+    return df.query("speaker == @speaker and text == @speech")
 
-# All sentiment data
+
+# Load Data
+st. set_page_config(layout="wide")
+st.title("Singapore Parliament Hansard NLP")
+st.write("""
+The Singapore Parliament Hansard contains verbatim transcripts of the speeches made by politicians in official parliament sessions.
+We analysed the Hansard using three different NLP tasks to gain more insights into the parlimentary proceedings.
+The data anaylsed was scraped from the Singapore Parliament website for all sessions from September 2012 to March 2021, giving about a decade worth of information and spanning three sessions of Parliament.
+
+Below is the data for the 14th session of parliament along with some interesting insights and visualisations drawn from the data.
+""")
 df = get_data()
 cols = df.columns.tolist()
+
 st_ms = st.multiselect("Columns", df.columns.tolist(), default=cols)
+st.write("Each row pertains to a speech given by a person")
 st.dataframe(df[st_ms])
 
+st.markdown("# Natural Entity Recognition (NER)")
+
+st.markdown("""
+NER was used to extract the various entities involved in the discussion.
+We finetuned 2 models (`xlm-roberta-base` and `xlm-roberta-base-ontonotes5`) using manually annotated hansard data to extract the following entity types `PERSON, NORP, FAC, ORG, GPE, LAW, DATE`.
+
+Models were evaluated on Singapore Hansard NER Dataset validation set.
+
+| Model                                     | F1 Score | Precision | Recall | Remark     |
+|-------------------------------------------|----------|-----------|--------|------------
+| asahi417/tner-xlm-roberta-base-ontonotes5 | 0.343    | 0.274     | 0.458  |Pretrained model without finetuning|
+| xlm-roberta-base-sh-ner                   | 0.786    | 0.742     | 0.837  | Pretrained xlm-roberta-base model finetuned on the manually annotated Singapore hansard dataset|
+| xlm-roberta-base-ontonotes5-sh-ner        | **0.819**| **0.778** | **0.864** | Pretrained xlm-roberta-base-ontonotes5 model finetuned on the manually annotated Singapore hansard dataset|
+
+### View our model results using the buttons below:
+""")
+
+col1, col2 = st.beta_columns([.25, 1])
+
+with col1:
+    speakers = df['speaker'].unique()
+    speaker_choice = st.selectbox('Select speaker:', speakers, index=47)
+with col2:
+    speeches = df['text'].loc[df["speaker"] == speaker_choice].unique()
+    speech_choice = st.selectbox('Select Speech', speeches, index=2)
+
+df_filtered = query_df(speaker_choice, speech_choice)
+
+doc = {"text": df_filtered['text'].values[0],
+       "ents": ast.literal_eval(df_filtered['entities'].values[0])}
+HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem">{}</div>"""
+html = displacy.render(doc, style="ent", manual=True)
+html = html.replace("\n\n", "\n")
+st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
+
+
+st.markdown("# Sentiment Analysis")
+
+st.markdown("""
+Sentiment analysis was used to the positive/negative sentiments of portions of speeches, which can be helpful to determine if the speaker is for or against the topic at hand
+We finetuned 2 models (`xlm-roberta-base` and `xlm-roberta-base-sst-2`) on the manually labelled Singapore Hansard sentiment dataset and the HanDeSet dataset.
+
+Models were evaluated on Singapore Hansard Sentiment Dataset validation set.
+
+| Model                                        | Accuracy | F1 Score | Precision | Recall |
+|----------------------------------------------|----------|----------|-----------|--------|
+| xlm-roberta-base-sst-2                       | 0.780    | 0.834    | 0.820     | 0.849  |
+| xlm-roberta-base-handeset                    | 0.447    | 0.547    | 0.587     | 0.512  |
+| xlm-roberta-base-sst-2-handeset              | 0.561    | 0.691    | 0.637     | 0.756  |
+| xlm-roberta-base-sh-sentiment                | 0.856    | 0.889    | 0.894     | **0.884**  |
+| xlm-roberta-base-sst-2-sh-sentiment          | **0.879**| **0.904**| **0.938** | 0.872  |
+| xlm-roberta-base-handeset-sh-sentiment       | 0.773    | 0.828    | 0.818     | 0.837  |
+| xlm-roberta-base-sst-2-handeset-sh-sentiment | 0.841    | 0.873    | 0.911     | 0.837  |
+
+""")
+
+cm = sn.light_palette("green", as_cmap=True)
+
 # Speaker Data
-speaker_pivot = make_pivot_table(df, ['speaker'], value_columns=['sentiment'], 
+speaker_pivot = make_pivot_table(df, ['speaker'], value_columns=['sentiment'],
                                  agg_function=(np.average, sentence_count))
 st.markdown("### **Sentiments by Speaker**")
 st.write("Data aggregated to show average sentiment and total sentences spoken for each session")
@@ -142,7 +183,8 @@ speaker_values = st.slider(
     0.0, 1.0, (0.0, 1.0), key="speaker")
 speaker_min = speaker_values[0]
 speaker_max = speaker_values[1]
-speaker_pivot = speaker_pivot.query("@speaker_min<=`sentiment average`<=@speaker_max")
+speaker_pivot = speaker_pivot.query(
+    "@speaker_min<=`sentiment average`<=@speaker_max")
 st.write("Average sentiment range: ", speaker_values)
 # ----------------------
 
@@ -150,13 +192,13 @@ st.dataframe(speaker_pivot.style.background_gradient(cmap=cm))
 
 fig, ax = plt.subplots()
 fig = px.scatter(speaker_pivot, x="sentiment average", y="sentiment sentence_count",
-                 color="sentiment average", size= "sentiment sentence_count", hover_data=['speaker'],
+                 color="sentiment average", size="sentiment sentence_count", hover_data=['speaker'],
                  color_continuous_scale=px.colors.sequential.Viridis)
 st.plotly_chart(fig)
 
 
 # Session Data
-session_pivot = make_pivot_table(df, ['session_title'], value_columns=['sentiment'], 
+session_pivot = make_pivot_table(df, ['session_title'], value_columns=['sentiment'],
                                  agg_function=(np.average, sentence_count))
 st.markdown("### **Sentiments by Session**")
 st.write("Data aggregated to show average sentiment and total sentences spoken for each session")
@@ -167,13 +209,15 @@ session_values = st.slider(
     0.0, 1.0, (0.0, 1.0), key="session")
 session_min = session_values[0]
 session_max = session_values[1]
-session_pivot = session_pivot.query("@session_min<=`sentiment average`<=@session_max")
+session_pivot = session_pivot.query(
+    "@session_min<=`sentiment average`<=@session_max")
 st.write("Average sentiment range: ", session_values)
 # ----------------------
+
 st.dataframe(session_pivot.style.background_gradient(cmap=cm))
 
 fig, ax = plt.subplots()
 fig = px.scatter(session_pivot, x="sentiment average", y="sentiment sentence_count",
-                 color="sentiment average", hover_data=['session_title'], 
+                 color="sentiment average", size="sentiment sentence_count", hover_data=['session_title'],
                  color_continuous_scale=px.colors.sequential.Viridis)
 st.plotly_chart(fig)
