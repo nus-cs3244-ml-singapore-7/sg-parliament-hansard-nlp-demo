@@ -12,6 +12,7 @@ from sentiment_info import *
 from ner_info import *
 
 
+@st.cache()
 def get_data():
     df = pd.read_csv("./Combined Data 14th.csv")
     return df
