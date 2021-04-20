@@ -56,6 +56,7 @@ def display_ner_data(df):
     """
 
     st.markdown("## **Live Inference**")
+    st.write("Please note that loading may take upto 1 min due to deployment cost contraints.")
     st.markdown("### Try out our NER Model `xlm-roberta-base-ontonotes5-sh-ner`")
     text_box = st.text_area("Enter some text for NER", sequence)
 
