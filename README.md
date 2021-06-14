@@ -13,7 +13,7 @@ The models were used to analyse the Hansard of recent years to uncover interesti
 The project report can be found [here](https://github.com/nus-cs3244-ml-singapore-7/sg-parliament-hansard-nlp-demo/blob/master/transfer-learning-with-transformers-machine-analysis-of-the-singapore.pdf).
 
 ## Data
-The data for training and analysid was scraped from the Singapore Parliament website for all sessions from September 2012 to March 2021, giving about a decade worth of information and spanning three sessions of Parliament. The data can be found [here](https://github.com/nus-cs3244-ml-singapore-7/hansard_data).
+The data for training and analysed was scraped from the Singapore Parliament website for all sessions from September 2012 to March 2021, giving about a decade worth of information and spanning three sessions of Parliament. The data can be found [here](https://github.com/nus-cs3244-ml-singapore-7/hansard_data).
 
 ## Model Training
 The trained models along with the code and results for model training can be found [here](https://github.com/nus-cs3244-ml-singapore-7/singapore-hansard-nlp).
